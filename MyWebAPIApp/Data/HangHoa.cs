@@ -24,5 +24,12 @@ namespace MyWebAPIApp.Data
 
         [ForeignKey("MaLoai")]
         public LoaiHangHoa LoaiHangHoa { get; set; }
+        public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; }
+
+        public HangHoa()
+        {
+            ChiTietDonHangs = new HashSet<ChiTietDonHang>();
+        }
+
     }
 }

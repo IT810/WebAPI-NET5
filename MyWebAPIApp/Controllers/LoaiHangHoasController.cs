@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyWebAPIApp.Data;
 using MyWebAPIApp.Models;
@@ -24,8 +25,15 @@ namespace MyWebAPIApp.Controllers
         [Route("getall")]
         public IActionResult GetAll()
         {
-            var dsloai = context.LoaiHangHoas.ToList();
-            return Ok(dsloai);
+            try
+            {
+                var dsloai = context.LoaiHangHoas.ToList();
+                return Ok(dsloai);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet]
@@ -46,6 +54,7 @@ namespace MyWebAPIApp.Controllers
 
         [HttpPost]
         [Route("create")]
+        [Authorize]
         public IActionResult Create(LoaiHangHoaModel loaiHangHoa)
         {
             try
@@ -55,7 +64,7 @@ namespace MyWebAPIApp.Controllers
                 context.Add(loai);
                 context.SaveChanges();
 
-                return Ok(loai);
+                return StatusCode(StatusCodes.Status201Created, loai);
             }
             catch(Exception ex)
             {
@@ -74,6 +83,24 @@ namespace MyWebAPIApp.Controllers
                 loai.TenLoai = model.TenLoai;
                 context.SaveChanges();
                 return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public IActionResult Delete(int id)
+        {
+            var loai = context.LoaiHangHoas.SingleOrDefault(x => x.MaLoai == id);
+
+            if (loai != null)
+            {
+                context.LoaiHangHoas.Remove(loai);
+                context.SaveChanges();
+                return StatusCode(StatusCodes.Status200OK);
             }
             else
             {
